@@ -4,6 +4,7 @@ import com.smartdelivery.repository.UsuarioRepository;
 import com.smartdelivery.service.TokenStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -36,7 +37,10 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .headers(h -> h.frameOptions(f -> f.sameOrigin()))   // consola H2
             .authorizeHttpRequests(a -> a
-                .requestMatchers("/api/auth/login", "/api/auth/registro").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/registro", "/api/config/**", "/api/publico/**").permitAll()
+                // Visitantes sin cuenta: ver comercios, catálogo y promociones, y hacer pedidos
+                .requestMatchers(HttpMethod.GET, "/api/comercios", "/api/comercios/*/productos", "/api/promociones").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/pedidos").permitAll()
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll())                       // HTML/JS/CSS estáticos y consola H2
             .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))

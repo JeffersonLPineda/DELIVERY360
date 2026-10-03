@@ -18,7 +18,7 @@ import java.util.List;
 public class ComercioController {
     private final ComercioService comercioService;
 
-    /** Comercios disponibles (abiertos). Cualquier usuario autenticado. */
+    /** Comercios disponibles (abiertos). Público. */
     @GetMapping
     public List<ComercioResponse> listar() { return comercioService.listarAbiertos(); }
 
@@ -47,7 +47,8 @@ public class ComercioController {
     /** Catálogo. Clientes ven solo disponibles; comercio/admin ven todo. */
     @GetMapping("/{id}/productos")
     public List<ProductoResponse> productos(@PathVariable Long id, @AuthenticationPrincipal Usuario u) {
-        boolean soloDisponibles = u.getRol() == com.smartdelivery.model.Rol.CLIENTE
+        // u == null: visitante sin sesión (el catálogo es público)
+        boolean soloDisponibles = u == null || u.getRol() == com.smartdelivery.model.Rol.CLIENTE
                 || u.getRol() == com.smartdelivery.model.Rol.REPARTIDOR;
         return comercioService.productos(id, soloDisponibles);
     }

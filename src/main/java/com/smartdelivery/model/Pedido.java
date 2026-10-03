@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +28,8 @@ import java.util.List;
 public class Pedido implements Rastreable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(optional = false)
+    /** null cuando el pedido lo hizo un invitado (la cuenta de cliente es opcional). */
+    @ManyToOne
     private Usuario cliente;
     @ManyToOne(optional = false)
     private Comercio comercio;
@@ -49,8 +53,16 @@ public class Pedido implements Rastreable {
     @Column(precision = 12, scale = 2) private BigDecimal total = BigDecimal.ZERO;
     private double distanciaKm;
     private String direccionEntrega;
+    private String notasEntrega;
     private double latEntrega;
     private double lonEntrega;
+    // Datos de contacto de quien recibe (siempre presentes, tenga o no cuenta)
+    private String nombreContacto;
+    private String telefonoContacto;
+    private String emailContacto;
+    /** Clave secreta para que un invitado consulte, cancele o califique su pedido sin iniciar sesión. */
+    @Column(length = 16)
+    private String codigoSeguimiento;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
     @ManyToOne
@@ -67,7 +79,32 @@ public class Pedido implements Rastreable {
         this.lonEntrega = lonEntrega;
         this.fechaCreacion = LocalDateTime.now();
         this.fechaActualizacion = this.fechaCreacion;
-        registrar("Pedido creado");
+        this.codigoSeguimiento = generarCodigo();
+        registrar(cliente == null ? "Pedido creado (invitado)" : "Pedido creado");
+    }
+
+    public void registrarContacto(String nombre, String telefono, String email, String notasEntrega) {
+        this.nombreContacto = nombre;
+        this.telefonoContacto = telefono;
+        this.emailContacto = email;
+        this.notasEntrega = notasEntrega;
+    }
+
+    public boolean esInvitado() { return cliente == null; }
+
+    /** Comparación en tiempo constante del código de seguimiento. */
+    public boolean coincideCodigo(String codigo) {
+        return codigoSeguimiento != null && codigo != null
+                && MessageDigest.isEqual(codigoSeguimiento.getBytes(StandardCharsets.UTF_8),
+                                         codigo.trim().toUpperCase().getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static String generarCodigo() {
+        final String alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // sin O/0/I/1 para evitar confusiones
+        SecureRandom rnd = new SecureRandom();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 8; i++) sb.append(alfabeto.charAt(rnd.nextInt(alfabeto.length())));
+        return sb.toString();
     }
 
     public void agregarDetalle(Producto producto, int cantidad) {
@@ -84,7 +121,13 @@ public class Pedido implements Rastreable {
         this.total = subtotal.add(envio).subtract(descuento).max(BigDecimal.ZERO);
     }
 
-    public void setPago(Pago pago) { this.pago = pago; }
+    public void setPago(Pago pago) {
+        this.pago = pago;
+        registrar("Pago " + pago.getEstado() + " - " + pago.descripcionPublica());
+    }
+
+    /** Deja una nota en el historial del pedido. */
+    public void anotar(String evento) { registrar(evento); }
 
     public void cambiarEstado(EstadoPedido nuevo) {
         if (nuevo == null || !estado.puedeTransicionarA(nuevo)) {
@@ -106,7 +149,7 @@ public class Pedido implements Rastreable {
     /** ¿El usuario participa en este pedido (o es administrador)? */
     public boolean involucra(Usuario u) {
         return u.getRol() == Rol.ADMIN
-                || cliente.getId().equals(u.getId())
+                || (cliente != null && cliente.getId().equals(u.getId()))
                 || comercio.getPropietario().getId().equals(u.getId())
                 || (repartidor != null && repartidor.getId().equals(u.getId()));
     }

@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Entity
 @DiscriminatorValue("TRANSFERENCIA")
@@ -32,5 +33,7 @@ public class PagoTransferencia extends Pago {
     }
 
     @Override public MetodoPago getMetodo() { return MetodoPago.TRANSFERENCIA; }
+    @Override public String descripcionPublica() { return "Transferencia ref. " + referencia; }
+    @Override public Map<String, String> getDetalle() { return Map.of("Referencia", String.valueOf(referencia)); }
     public String getReferencia() { return referencia; }
 }

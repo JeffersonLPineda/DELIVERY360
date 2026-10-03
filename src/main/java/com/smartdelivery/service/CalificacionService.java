@@ -23,7 +23,20 @@ public class CalificacionService {
     public void registrar(Long clienteId, CalificacionRequest req) {
         Pedido p = pedidoRepository.findById(req.pedidoId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Pedido", req.pedidoId()));
-        if (!p.getCliente().getId().equals(clienteId)) throw new PermisoDenegadoException("Este pedido no es tuyo");
+        if (p.getCliente() == null || !p.getCliente().getId().equals(clienteId)) throw new PermisoDenegadoException("Este pedido no es tuyo");
+        calificar(p, req);
+    }
+
+    /** Invitado: se identifica con el número de pedido y su código de seguimiento. */
+    @Transactional
+    public void registrarInvitado(Long pedidoId, String codigo, CalificacionRequest req) {
+        Pedido p = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Pedido", pedidoId));
+        if (!p.esInvitado() || !p.coincideCodigo(codigo)) throw new RecursoNoEncontradoException("Pedido", pedidoId);
+        calificar(p, req);
+    }
+
+    private void calificar(Pedido p, CalificacionRequest req) {
         if (p.getEstado() != EstadoPedido.ENTREGADO) throw new ReglaNegocioException("Solo se califican pedidos ENTREGADOS");
         if (p.isCalificado() || calificacionRepository.existsByPedidoId(p.getId())) {
             throw new ReglaNegocioException("Este pedido ya fue calificado");

@@ -30,15 +30,15 @@ classDiagram
     class Producto { -String nombre -BigDecimal precio -boolean disponible }
     Comercio "1" --> "*" Producto
 
-    class Pedido { -EstadoPedido estado -BigDecimal total +cambiarEstado(EstadoPedido) +asignarRepartidor(Repartidor) }
+    class Pedido { -EstadoPedido estado -BigDecimal total -String codigoSeguimiento -String nombreContacto -String telefonoContacto +cambiarEstado(EstadoPedido) +asignarRepartidor(Repartidor) }
     class DetallePedido { -int cantidad -BigDecimal precioUnitario }
     Rastreable <|.. Pedido
     Pedido "1" *-- "*" DetallePedido
-    Pedido "*" --> "1" Usuario : cliente
+    Pedido "*" --> "0..1" Usuario : cliente (null = invitado)
     Pedido "*" --> "1" Comercio
     Pedido "*" --> "0..1" Repartidor
 
-    class Pago { <<abstract>> +validar()* +procesar() +seProcesaAlEntregar() }
+    class Pago { <<abstract>> -EstadoPago estado -String idTransaccion +validar()* +procesar() +cobrarAlEntregar(efectivo) +cancelar() +seProcesaAlEntregar() +requiereAutenticacion() }
     class PagoEfectivo
     class PagoTarjeta
     class PagoTransferencia
@@ -69,7 +69,8 @@ erDiagram
     ZONAS ||--o{ REPARTIDORES : "opera en"
     USUARIOS ||--o| REPARTIDORES : "es (JOINED)"
     USUARIOS ||--o{ COMERCIOS : "es dueño"
-    USUARIOS ||--o{ PEDIDOS : "realiza"
+    USUARIOS |o--o{ PEDIDOS : "realiza (opcional: invitados sin cuenta)"
+    USUARIOS ||--o{ SESIONES : "inicia"
     COMERCIOS ||--o{ PRODUCTOS : "ofrece"
     COMERCIOS ||--o{ PEDIDOS : "recibe"
     REPARTIDORES ||--o{ PEDIDOS : "entrega"

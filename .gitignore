@@ -3,3 +3,5 @@ data/
 *.log
 .idea/
 *.iml
+.env
+application-local.properties

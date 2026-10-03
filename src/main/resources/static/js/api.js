@@ -12,10 +12,19 @@ const API = {
     if (resp.status === 204) return null;
     const data = await resp.json().catch(() => null);
     if (!resp.ok) {
-      if (resp.status === 401) { localStorage.clear(); this.token = null; }
-      throw new Error((data && data.mensaje) || ('Error ' + resp.status));
+      if (resp.status === 401 && this.token) this.limpiarSesion();
+      const err = new Error((data && data.mensaje) || ('Error ' + resp.status));
+      err.status = resp.status;
+      err.data = data;          // p. ej. { requiere3ds: true, desafioId: '...' }
+      throw err;
     }
     return data;
+  },
+
+  // Solo se borra la sesión: los pedidos de invitado guardados en este navegador se conservan
+  limpiarSesion() {
+    ['token', 'rol', 'nombre'].forEach(k => localStorage.removeItem(k));
+    this.token = null;
   },
 
   get(url)        { return this.request('GET', url); },
@@ -31,19 +40,5 @@ const API = {
     return r;
   },
 
-  logout() { this.post('/api/auth/logout').finally(() => { localStorage.clear(); location.href = '/'; }); }
+  logout() { this.post('/api/auth/logout').catch(() => {}).finally(() => { this.limpiarSesion(); location.href = '/'; }); }
 };
-
-/* Ejemplos de uso:
-   await API.login('cliente@smartdelivery.com', 'Cliente123');
-   const comercios = await API.get('/api/comercios');
-   const productos = await API.get('/api/comercios/1/productos');
-   const pedido = await API.post('/api/pedidos', {
-     comercioId: 1,
-     items: [{ productoId: 1, cantidad: 2 }],
-     direccionEntrega: 'Zona 1, Amatitlán', latEntrega: 14.48, lonEntrega: -90.61,
-     codigoPromocion: 'BIENVENIDO10',
-     pago: { metodo: 'EFECTIVO' }
-   });
-   await API.put('/api/pedidos/' + pedido.id + '/estado', { estado: 'CANCELADO' });
-*/
