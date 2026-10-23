@@ -1,0 +1,9 @@
+target/
+data/
+*.log
+.idea/
+*.iml
+.env
+application-local.properties
+frontend/node_modules/
+frontend/.astro/

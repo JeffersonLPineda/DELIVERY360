@@ -1,0 +1,20 @@
+# Base de datos PostgreSQL persistente para SmartDelivery 360.
+#   Iniciar:  docker compose up -d
+#   Detener:  docker compose down        (los datos se conservan en el volumen "pgdata")
+#   Borrar TODO (incluye datos):  docker compose down -v
+services:
+  db:
+    image: postgres:16
+    container_name: smartdelivery-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smartdelivery
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

@@ -1,0 +1,17 @@
+---
+interface Props { light?: boolean }
+const { light = false } = Astro.props;
+---
+<span class:list={['logo', { light }]}>
+  <svg viewBox="0 0 64 64" aria-hidden="true">
+    <defs>
+      <linearGradient id="lg-pin" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#0D925E" /><stop offset="1" stop-color="#43C24B" />
+      </linearGradient>
+    </defs>
+    <rect width="64" height="64" rx="16" fill="#022A50" />
+    <path d="M32 12c-8.3 0-15 6.5-15 14.6C17 37.5 32 52 32 52s15-14.5 15-25.4C47 18.5 40.3 12 32 12Z" fill="url(#lg-pin)" />
+    <circle cx="32" cy="27" r="6" fill="#022A50" />
+  </svg>
+  <span class="logo-txt">SmartDelivery<b>360</b></span>
+</span>

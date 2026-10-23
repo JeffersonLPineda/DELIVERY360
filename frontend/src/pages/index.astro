@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import Sidebar from '../components/Sidebar.astro';
+import Topbar from '../components/Topbar.astro';
+---
+<Base>
+  <div class="shell">
+    <Sidebar />
+    <div class="content">
+      <Topbar />
+      <main id="box" class="main" aria-live="polite">
+        <div class="skeleton-page">
+          <div class="sk sk-title"></div>
+          <div class="sk-grid"><div class="sk sk-card"></div><div class="sk sk-card"></div><div class="sk sk-card"></div></div>
+        </div>
+      </main>
+      <footer class="foot">SmartDelivery 360 · Proyecto académico · Pagos simulados</footer>
+    </div>
+  </div>
+  <div id="toast" class="toasts" role="status"></div>
+  <script>
+    import '../scripts/app.js';
+  </script>
+</Base>

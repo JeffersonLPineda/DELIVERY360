@@ -1,0 +1,25 @@
+---
+import Logo from './Logo.astro';
+---
+<aside id="sidebar" class="sidebar" aria-label="Navegación principal">
+  <div class="sb-head">
+    <Logo light />
+    <button class="icon-btn sb-close" id="sb-close" aria-label="Cerrar menú">
+      <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></svg>
+    </button>
+  </div>
+  <p class="sb-label" id="sb-rol">Explorar</p>
+  <nav id="tabs" class="sb-nav"></nav>
+  <div class="sb-foot">
+    <div class="sb-user" id="sb-user">
+      <span class="avatar" id="avatar">?</span>
+      <span class="sb-user-txt"><b id="user-name">Invitado</b><small id="user-rol">Sin cuenta</small></span>
+    </div>
+    <button class="btn btn-block btn-light" id="entrar" hidden>Ingresar</button>
+    <button class="btn btn-block btn-ghost-light" id="salir" hidden>
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></svg>
+      Cerrar sesión
+    </button>
+  </div>
+</aside>
+<div class="sb-backdrop" id="sb-backdrop"></div>
