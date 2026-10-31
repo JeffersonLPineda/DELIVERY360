@@ -15,11 +15,6 @@ mvn spring-boot:run
 Arranca en `http://localhost:8080`, crea las tablas la primera vez y carga datos de ejemplo **solo si la base está vacía**:
 los datos (usuarios, pedidos, pagos, sesiones de login) se conservan al reiniciar el servidor.
 
-- ¿Ya tienes PostgreSQL instalado? Crea la base (`CREATE DATABASE smartdelivery;`) y ajusta las variables de entorno
-  `DB_URL`, `DB_USER` y `DB_PASSWORD` (por defecto: `jdbc:postgresql://localhost:5432/smartdelivery`, `postgres` / `postgres`).
-- Para pruebas rápidas sin instalar nada: `mvn spring-boot:run -Dspring-boot.run.profiles=h2` (H2 en archivo `./data`, consola en `/h2-console`).
-- Existe también el perfil `mysql` (`application-mysql.properties`).
-- **Borrar todos los datos**: `docker compose down -v` y volver a levantar.
 
 **Script SQL (entregable):** descomenta las 2 líneas `schema-generation` de `application.properties`, arranca una vez y se genera `docs/schema.sql`.
 
@@ -62,9 +57,9 @@ Estructura:
 - `src/scripts/`: `api.js` (cliente REST), `maps.js` (Google Maps), `ui.js` (componentes e íconos) y `app.js` (vistas por rol)
 - `src/styles/global.css`: sistema de diseño (paleta del logo, tipografía Plus Jakarta Sans)
 
-No edites `src/main/resources/static` a mano: se sobrescribe en cada `npm run build`.
 
-## Cuentas de prueba (solo documentación)
+
+## Cuentas de prueba
 
 La pantalla de ingreso **no tiene botones de acceso rápido**; las cuentas existen en la base de datos y se usan escribiendo correo y contraseña:
 
@@ -122,7 +117,7 @@ repartidor entrega → transición inválida (409) → calificación con código
 
 `POST /api/auth/login` devuelve un `token`. Envíalo en cada petición: `Authorization: Bearer <token>`.
 Los tokens se guardan en la base de datos (tabla `sesiones`, vigencia 7 días): sobreviven al reinicio del servidor.
-Desde tu JS usa `static/js/api.js` (`API.login(...)`, `API.get(...)`, `API.post(...)`).
+
 
 ## Endpoints
 
@@ -211,5 +206,4 @@ Paquetes: `controller`, `service`, `repository`, `model`, `dto`, `exception`, `i
 ## Lo que falta del proyecto (no incluido aquí)
 
 - **App Android (Java)**: debe consumir esta API (Retrofit + `Authorization: Bearer`). Para el emulador, la API está en `http://10.0.2.2:8080/api/`.
-- ~~Frontend web~~ **Incluido**: abre `http://localhost:8080/` (`static/index.html`, `css/app.css`, `js/app.js` sobre `js/api.js`). Paneles por rol: cliente, comercio, repartidor y administrador.
-- **Documentación**: `docs/diagramas.md` (UML y ER en Mermaid), el documento de conceptos POO (puedes partir de la tabla de arriba), manual de usuario y video.
+- **Documentación**: `docs/diagramas.md` (UML y ER) esto se encuentra en el documento en Canvas
