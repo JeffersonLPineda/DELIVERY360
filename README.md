@@ -1,6 +1,7 @@
 # SmartDelivery 360 — Backend (Spring Boot + API REST)
 Deployed Web: https://delivery360-hs42.onrender.com/
-APK y Codigo Fuente de App Móvil: https://github.com/JeffersonLPineda/DELIVERY-360-APP 
+APK y Codigo Fuente de App Móvil: https://github.com/JeffersonLPineda/DELIVERY-360-APP
+
 Backend central del proyecto: API REST en Java con Spring Boot, JPA, roles y seguridad por token.
 La web y la app Android consumen **esta misma API** (sin lógica duplicada).
 
@@ -15,48 +16,6 @@ mvn spring-boot:run
 
 Arranca en `http://localhost:8080`, crea las tablas la primera vez y carga datos de ejemplo **solo si la base está vacía**:
 los datos (usuarios, pedidos, pagos, sesiones de login) se conservan al reiniciar el servidor.
-
-
-**Script SQL (entregable):** descomenta las 2 líneas `schema-generation` de `application.properties`, arranca una vez y se genera `docs/schema.sql`.
-
-### Google Maps (opcional, capa gratuita)
-
-Sin clave la web funciona igual, pero sin mapa interactivo (se usa el GPS del navegador o coordenadas manuales).
-Con clave el cliente elige la ubicación de entrega en un mapa y el repartidor ve el destino en Google Maps.
-
-1. En [Google Cloud Console](https://console.cloud.google.com/) crea un proyecto y habilita: **Maps JavaScript API**, **Places API (New)**, **Geocoding API** y **Maps Embed API**.
-2. Crea una **API key** (Credenciales → Crear credenciales). Google pide vincular una cuenta de facturación aunque no se cobre mientras
-   te mantengas dentro de la cuota gratuita mensual de cada producto (≈10 000 eventos por producto; Maps Embed es gratuita e ilimitada). Revisa la tarifa vigente en la página de precios de Google Maps Platform.
-3. **Restringe la clave** por "HTTP referrers" (`http://localhost:8080/*` y tu dominio) y a esas 4 APIs; en Facturación fija un **presupuesto/cuota diaria** para evitar sorpresas.
-4. Arranca con la clave (la clave viaja al navegador por diseño, por eso hay que restringirla):
-
-```bash
-# Linux / macOS
-export GOOGLE_MAPS_API_KEY="tu_clave" && mvn spring-boot:run
-# Windows PowerShell
-$env:GOOGLE_MAPS_API_KEY="tu_clave"; mvn spring-boot:run
-```
-`GOOGLE_MAPS_REGION` (por defecto `gt`) limita las sugerencias de búsqueda a un país.
-
-## Frontend web (Astro)
-
-El código fuente de la web está en `frontend/` (Astro). Al compilarlo, genera la página directamente en
-`src/main/resources/static/`, que Spring Boot sirve en `http://localhost:8080` como siempre.
-
-```bash
-cd frontend
-npm install
-npm run build      # genera src/main/resources/static (luego: mvn spring-boot:run)
-npm run dev        # modo desarrollo con recarga en http://localhost:4321 (redirige /api al backend en :8080)
-```
-
-Si el backend corre en otro puerto: `BACKEND_URL=http://localhost:8000 npm run dev`.
-
-Estructura:
-- `src/pages/index.astro` y `src/layouts/Base.astro`: página y estructura HTML
-- `src/components/`: barra lateral, barra superior móvil y logo
-- `src/scripts/`: `api.js` (cliente REST), `maps.js` (Google Maps), `ui.js` (componentes e íconos) y `app.js` (vistas por rol)
-- `src/styles/global.css`: sistema de diseño (paleta del logo, tipografía Plus Jakarta Sans)
 
 
 
@@ -203,8 +162,3 @@ Detalle, endpoints excluidos y variables (`API_PUBLICA_LIMITE`, `API_PUBLICA_LIM
 | **Motor de asignación (6 criterios)** | `service/asignacion/`: disponibilidad, sin pedido bloqueante, zona, distancia, carga, calificación → puntaje ponderado |
 
 Paquetes: `controller`, `service`, `repository`, `model`, `dto`, `exception`, `interfaces`, `util`, `config`.
-
-## Lo que falta del proyecto (no incluido aquí)
-
-- **App Android (Java)**: debe consumir esta API (Retrofit + `Authorization: Bearer`). Para el emulador, la API está en `http://10.0.2.2:8080/api/`.
-- **Documentación**: `docs/diagramas.md` (UML y ER) esto se encuentra en el documento en Canvas
